@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 import params
-from utils import get_data
+from utils import get_data, get_best_history
 
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
@@ -14,7 +14,6 @@ from keras.preprocessing.image import ImageDataGenerator
 
 epochs = params.max_epochs
 batch_size = params.batch_size
-model = params.model_factory()
 validation_split = params.validation_split
 best_weights_path = params.best_weights_path
 
@@ -28,7 +27,7 @@ xtr, xcv, ytr, ycv = train_test_split(X_train, y_train, test_size=validation_spl
 callbacks = [
     EarlyStopping(
         monitor='val_loss',
-        patience=20,
+        patience=40,
         verbose=1,
         min_delta=1e-4,
         mode='min'
@@ -37,7 +36,7 @@ callbacks = [
     ReduceLROnPlateau(
         monitor='val_loss',
         factor=0.1,
-        patience=10,
+        patience=20,
         verbose=1,
         epsilon=1e-4,
         mode='min'
@@ -62,9 +61,10 @@ datagen = ImageDataGenerator(
     zoom_range=0.1
 )
 
+model = params.model_factory(input_shape=X_train.shape[1:])
 model.summary()
 
-model.fit_generator(
+hist = model.fit_generator(
     datagen.flow(xtr, ytr, batch_size=batch_size),
     steps_per_epoch=np.ceil(float(len(X_train)) / float(batch_size)),
     epochs=epochs,
@@ -72,3 +72,9 @@ model.fit_generator(
     validation_data=(xcv, ycv),
     callbacks=callbacks
 )
+
+best_epoch, loss, acc, val_loss, val_acc = get_best_history(hist.history, monitor='val_loss', mode='min')
+print ()
+print ("Best epoch: {}".format(best_epoch))
+print ("loss: {:0.6f} - acc: {:0.4f} - val_loss: {:0.6f} - val_acc: {:0.4f}".format(loss, acc, val_loss, val_acc))
+print ()

@@ -1,13 +1,14 @@
 from keras.models import Sequential, Model
-from keras.layers import Conv2D, MaxPooling2D, Dense, Dropout, Input, Flatten, Activation, Add, GlobalMaxPooling2D
+from keras.layers import Conv2D, MaxPooling2D, Dense, Dropout, Input, Flatten, Add, GlobalMaxPooling2D
+from keras.layers import Activation, LeakyReLU
 from keras.layers.normalization import BatchNormalization
-from keras.optimizers import Adam, RMSprop, SGD
+from keras.optimizers import Adam, RMSprop, SGD, Adadelta
 
 
 def get_model_sequential(input_shape=(75, 75, 3)):
     dropout = 0.25
     kernel_size = (3, 3)
-    optimizer = optimizer=Adam(lr=0.001)
+    optimizer = Adam(lr=0.001)
     #Building the model
     model = Sequential()
     # size = 75x75
@@ -84,7 +85,7 @@ def get_model_sequential(input_shape=(75, 75, 3)):
     model.add(Dense(1))
     model.add(Activation('sigmoid'))
 
-    model.compile(optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
     return model
 
@@ -92,7 +93,8 @@ def get_model_sequential(input_shape=(75, 75, 3)):
 def get_model_residual(input_shape=(75, 75, 3)):
     dropout = 0.25
     kernel_size = (5, 5)
-    optimizer = optimizer=SGD(lr=0.001, momentum=0.9)
+    # optimizer = optimizer=SGD(lr=0.001, momentum=0.9)
+    optimizer = Adam(lr=0.001)
 
     inputs = Input(shape=input_shape)
     inputs_norm = BatchNormalization()(inputs)
