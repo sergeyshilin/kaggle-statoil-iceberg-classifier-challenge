@@ -18,8 +18,10 @@ validation_split = params.validation_split
 best_weights_path = params.best_weights_path
 
 train = pd.read_json('data/train.json')
-# train = train[train.inc_angle != "na"]
-X_train = get_data(train.band_1.values, train.band_2.values)
+train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
+    train[train['inc_angle'] != "na"]['inc_angle'].mean()
+
+X_train = get_data(train.band_1.values, train.band_2.values, train.inc_angle.values)
 y_train = train['is_iceberg']
 
 xtr, xcv, ytr, ycv = train_test_split(X_train, y_train, test_size=validation_split, random_state=42)

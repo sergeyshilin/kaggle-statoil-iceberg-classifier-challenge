@@ -12,12 +12,12 @@ from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 
 epochs = params.max_epochs
 batch_size = params.batch_size
-model = params.model_factory()
 best_weights_path = params.best_weights_path
 
 test = pd.read_json('data/test.json')
-X_test = get_data(test.band_1.values, test.band_2.values)
+X_test = get_data(test.band_1.values, test.band_2.values, test.inc_angle.values)
 
+model = params.model_factory(input_shape=X_test.shape[1:])
 model.load_weights(filepath=best_weights_path)
 
 predicted_test = model.predict_proba(X_test)

@@ -1,9 +1,12 @@
 import numpy as np
 
 
-def get_data(band_1, band_2):
+def get_data(band_1, band_2, angles):
     X_band_1 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_1])
     X_band_2 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_2])
+
+    X_angles = [[a for _ in range(75 * 75)] for a in angles]
+    X_angles = np.asarray(X_angles).astype(np.float32).reshape((len(angles), 75, 75))
 
     X_band_1_val = np.power(10, X_band_1 / 20.0)
     X_band_2_val = np.power(10, X_band_2 / 20.0)
