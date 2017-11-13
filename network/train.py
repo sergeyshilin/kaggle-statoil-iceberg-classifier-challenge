@@ -17,7 +17,7 @@ batch_size = params.batch_size
 validation_split = params.validation_split
 best_weights_path = params.best_weights_path
 
-train = pd.read_json('data/train.json')
+train = pd.read_json('../data/train.json')
 train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
     train[train['inc_angle'] != "na"]['inc_angle'].mean()
 
@@ -38,7 +38,7 @@ callbacks = [
     ReduceLROnPlateau(
         monitor='val_loss',
         factor=0.1,
-        patience=20,
+        patience=25,
         verbose=1,
         epsilon=1e-4,
         mode='min'
