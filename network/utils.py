@@ -1,12 +1,10 @@
 import numpy as np
 
 
-def get_data(band_1, band_2, angles, test=False):
+def get_data(band_1, band_2, angles):
     X_band_1 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_1])
     X_band_2 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_2])
     X_angles = np.asarray(angles).astype(np.float32)
-
-    X_band_1, X_band_2 = remove_angle_correlation(X_band_1, X_band_2, X_angles)
 
     X_band_1_val = np.power(10, X_band_1 / 20.0)
     X_band_2_val = np.power(10, X_band_2 / 20.0)
@@ -23,16 +21,6 @@ def get_data(band_1, band_2, angles, test=False):
     )
 
     return data
-
-
-def remove_angle_correlation(band_1, band_2, angles):
-    reg_1 = np.polyfit(angles, band_1.mean(axis=(1, 2)), 1)
-    reg_2 = np.polyfit(angles, band_2.mean(axis=(1, 2)), 1)
-
-    X_band_1 = (band_1.transpose() - reg_1[0] * angles - reg_1[1]).transpose()
-    X_band_2 = (band_2.transpose() - reg_2[0] * angles - reg_2[1]).transpose()
-
-    return X_band_1, X_band_2
 
 
 def get_best_history(history, monitor='val_loss', mode='min'):
