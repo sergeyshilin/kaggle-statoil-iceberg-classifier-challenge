@@ -2,6 +2,8 @@
 *.csv
 *.json
 *.hdf5
+preview/
+preview_test/
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
