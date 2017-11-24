@@ -16,6 +16,7 @@ epochs = params.max_epochs
 batch_size = params.batch_size
 validation_split = params.validation_split
 best_weights_path = params.best_weights_path
+best_model_path = params.best_model_path
 
 train = pd.read_json('../data/train.json')
 train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
@@ -92,7 +93,7 @@ def get_data_generator(X, I, Y, batch_size=64):
 model = params.model_factory(input_shape=X_train.shape[1:])
 model.summary()
 
-with open("models/best_model.json", "w") as json_file:
+with open(best_model_path, "w") as json_file:
     json_file.write(model.to_json())
 
 hist = model.fit_generator(

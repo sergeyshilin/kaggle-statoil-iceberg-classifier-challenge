@@ -5,4 +5,5 @@ batch_size = 64
 model_factory = get_model_sequential
 validation_split = 0.15
 best_weights_path = 'weights/best_weights.hdf5'
+best_model_path = 'models/best_model.json'
 tta_steps = 5

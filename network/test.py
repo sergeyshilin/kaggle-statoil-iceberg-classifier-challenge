@@ -8,11 +8,13 @@ import pandas as pd
 import params
 from utils import get_data
 
+from keras.models import model_from_json
 from keras.preprocessing.image import ImageDataGenerator
 
 epochs = params.max_epochs
 batch_size = params.batch_size
 best_weights_path = params.best_weights_path
+best_model_path = params.best_model_path
 tta_steps = params.tta_steps
 
 test = pd.read_json('../data/test.json')
@@ -47,11 +49,15 @@ def get_data_generator(X, M, batch_size=64):
                 break
 
 
-model = params.model_factory(input_shape=X_test.shape[1:])
+json_file = open(best_model_path, 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+model = model_from_json(loaded_model_json)
+
 model.load_weights(filepath=best_weights_path)
 
+## Make predictions
 predictions = np.zeros((tta_steps, len(X_test)))
-
 test_probas = model.predict([X_test, M_test], batch_size=batch_size, verbose=2)
 predictions[0] = test_probas.reshape(test_probas.shape[0])
 
@@ -62,6 +68,7 @@ for i in range(1, tta_steps):
 		verbose=2
 	)
 	predictions[i] = test_probas.reshape(test_probas.shape[0])
+## End of predictions and TTA
 
 submission = pd.DataFrame()
 submission['id'] = test['id']
