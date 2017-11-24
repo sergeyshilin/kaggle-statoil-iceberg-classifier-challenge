@@ -20,7 +20,7 @@ def get_data(band_1, band_2, angles):
         axis=-1
     )
 
-    data = color_composite(data)
+    # data = color_composite(data)
 
     return data, X_angles
 

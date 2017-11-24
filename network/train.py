@@ -64,11 +64,11 @@ def get_data_generator(X, I, Y, batch_size=64):
         datagen = ImageDataGenerator(
             horizontal_flip=True,
             vertical_flip=True,
-            rotation_range=40,
-            width_shift_range=0.2,
-            height_shift_range=0.2,
+            rotation_range=20,
+            width_shift_range=0.1,
+            height_shift_range=0.1,
             channel_shift_range=0.1,
-            shear_range=0.2,
+            shear_range=0.1,
             zoom_range=0.1
         )
 
@@ -91,6 +91,9 @@ def get_data_generator(X, I, Y, batch_size=64):
 
 model = params.model_factory(input_shape=X_train.shape[1:])
 model.summary()
+
+with open("models/best_model.json", "w") as json_file:
+    json_file.write(model.to_json())
 
 hist = model.fit_generator(
     get_data_generator(xtr, mtr, ytr, batch_size=batch_size),
