@@ -101,7 +101,7 @@ def predict_with_tta(model):
 
     for i in range(1, tta_steps):
         test_probas = model.predict_generator(
-            get_data_generator(datagen_test, X_test, M_test, batch_size=batch_size),
+            get_data_generator_test(datagen_test, X_test, M_test, batch_size=batch_size),
             steps=np.ceil(float(len(X_test)) / float(batch_size)),
             verbose=2
         )

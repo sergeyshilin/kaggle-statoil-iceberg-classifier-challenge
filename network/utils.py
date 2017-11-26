@@ -67,7 +67,7 @@ def get_data_generator(datagen, X1, X2, y, batch_size):
 
 
 def get_data_generator_test(datagen, X1, X2, batch_size):
-    genX1 = datagen.flow(X1, X2, batch_size=batch_size, seed=55)
+    genX1 = datagen.flow(X1, X2, batch_size=batch_size, shuffle=False)
 
     while True:
         X1i = genX1.next()
