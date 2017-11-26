@@ -115,7 +115,7 @@ predictions = np.zeros((num_folds, len(X_test)))
 
 skf = StratifiedKFold(n_splits=num_folds, random_state=random_seed, shuffle=True)
 for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
-    print ('\n===================FOLD=', j)
+    print ('\n===================FOLD=', j + 1)
     xtr, mtr, ytr = X_train[train_index], M_train[train_index], y_train[train_index]
     xcv, mcv, ycv = X_train[cv_index], M_train[cv_index], y_train[cv_index]
 
