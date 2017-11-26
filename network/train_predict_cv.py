@@ -20,6 +20,7 @@ best_weights_path = params.best_weights_path
 best_model_path = params.best_model_path
 random_seed = params.seed
 num_folds = params.num_folds
+tta_steps = params.tta_steps
 
 train = pd.read_json('../data/train.json')
 test = pd.read_json('../data/test.json')
