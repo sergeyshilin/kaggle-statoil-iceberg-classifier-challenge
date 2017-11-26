@@ -67,17 +67,22 @@ datagen_test = ImageDataGenerator(
 
 # Here is the function that merges our two generators
 # We use the exact same generator with the same random seed for both the y and angle arrays
-def get_data_generator(X1, X2, y, batch_size):
-    genX1 = datagen.flow(X1, y, batch_size=batch_size, seed=55)
+def get_data_generator(X1, X2, y=None, batch_size=64):
+    if y:
+        genX1 = datagen.flow(X1, y, batch_size=batch_size, seed=55)
     genX2 = datagen.flow(X1, X2, batch_size=batch_size, seed=55)
 
     while True:
+        if y:
             X1i = genX1.next()
-            X2i = genX2.next()
+        X2i = genX2.next()
 
-            #Assert arrays are equal - this was for peace of mind, but slows down training
-            #np.testing.assert_array_equal(X1i[0],X2i[0])
+        #Assert arrays are equal - this was for peace of mind, but slows down training
+        #np.testing.assert_array_equal(X1i[0],X2i[0])
+        if y:
             yield [X1i[0], X2i[1]], X1i[1]
+        else:
+            yield [X2i[0], X2i[1]]
 
 
 model_info = params.model_factory(input_shape=X_train.shape[1:])
