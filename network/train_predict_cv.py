@@ -82,7 +82,8 @@ def train_and_evaluate_model(model, X_tr, y_tr, X_cv, y_cv):
         steps_per_epoch=np.ceil(float(len(xtr)) / float(batch_size)),
         epochs=epochs,
         verbose=2,
-        validation_data=([xcv, mcv], ycv),
+        validation_data=get_data_generator(datagen, xcv, mcv, ycv, batch_size=batch_size),
+        validation_steps=np.ceil(float(len(xcv)) / float(batch_size)),
         callbacks=get_callbacks()
     )
 
