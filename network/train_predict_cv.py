@@ -11,6 +11,7 @@ from utils import get_data_generator, get_data_generator_test
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import log_loss, accuracy_score
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator
 
@@ -94,17 +95,16 @@ def train_and_evaluate_model(model, X_tr, y_tr, X_cv, y_cv):
     print ()
 
 
-def predict_with_tta(model):
-    print ('\nPredicting test data with augmentation ...')
-    predictions = np.zeros((tta_steps, len(X_test)))
-    test_probas = model.predict([X_test, M_test], batch_size=batch_size, verbose=1)
+def predict_with_tta(model, X_data, M_data, verbose=0):
+    predictions = np.zeros((tta_steps, len(X_data)))
+    test_probas = model.predict([X_data, M_data], batch_size=batch_size, verbose=verbose)
     predictions[0] = test_probas.reshape(test_probas.shape[0])
 
     for i in range(1, tta_steps):
         test_probas = model.predict_generator(
-            get_data_generator_test(datagen_test, X_test, M_test, batch_size=batch_size),
-            steps=np.ceil(float(len(X_test)) / float(batch_size)),
-            verbose=1
+            get_data_generator_test(datagen_test, X_data, M_data, batch_size=batch_size),
+            steps=np.ceil(float(len(X_data)) / float(batch_size)),
+            verbose=verbose
         )
         predictions[i] = test_probas.reshape(test_probas.shape[0])
 
@@ -113,6 +113,7 @@ def predict_with_tta(model):
 
 ## ========================= RUN KERAS K-FOLD TRAINING ========================= ##
 predictions = np.zeros((num_folds, len(X_test)))
+tr_labels, tr_preds, cv_labels, cv_preds = [], [], [], []
 
 skf = StratifiedKFold(n_splits=num_folds, random_state=random_seed, shuffle=True)
 for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
@@ -120,12 +121,33 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     xtr, mtr, ytr = X_train[train_index], M_train[train_index], y_train[train_index]
     xcv, mcv, ycv = X_train[cv_index], M_train[cv_index], y_train[cv_index]
 
+    tr_labels.extend(ytr)
+    cv_labels.extend(ycv)
+
     model = None
     model = params.model_factory(input_shape=X_train.shape[1:])
-
     train_and_evaluate_model(model, [xtr, mtr], ytr, [xcv, mcv], ycv)
-    fold_predictions = predict_with_tta(model)
+    model.load_weights(filepath=best_weights_path)
+
+    # Measure train and validation quality
+    print ('\nValidating accuracy on training data ...')
+    tr_preds.extend(predict_with_tta(model, xtr, mtr))
+    cv_preds.extend(predict_with_tta(model, xcv, mcv))
+
+    print ('\nPredicting test data with augmentation ...')
+    fold_predictions = predict_with_tta(model, X_test, M_test, verbose=1)
     predictions[j] = fold_predictions
+
+tr_loss = log_loss(tr_labels, tr_preds)
+tr_acc = accuracy_score(tr_labels, np.asarray(tr_preds) > 0.5)
+val_loss = log_loss(cv_labels, cv_preds)
+val_acc = accuracy_score(cv_labels, np.asarray(cv_preds) > 0.5)
+
+print ()
+print ("Overall score: ")
+print ("train_loss: {:0.6f} - train_acc: {:0.4f} - val_loss: {:0.6f} - val_acc: {:0.4f}".format(
+    tr_loss, tr_acc, val_loss, val_acc))
+print ()
 
 
 submission = pd.DataFrame()
