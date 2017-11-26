@@ -7,6 +7,7 @@ import pandas as pd
 
 import params
 from utils import get_data, get_best_history
+from utils import get_data_generator, get_data_generator_test
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
@@ -65,26 +66,6 @@ datagen_test = ImageDataGenerator(
 )
 
 
-# Here is the function that merges our two generators
-# We use the exact same generator with the same random seed for both the y and angle arrays
-def get_data_generator(X1, X2, y=None, batch_size=64):
-    if y:
-        genX1 = datagen.flow(X1, y, batch_size=batch_size, seed=55)
-    genX2 = datagen.flow(X1, X2, batch_size=batch_size, seed=55)
-
-    while True:
-        if y:
-            X1i = genX1.next()
-        X2i = genX2.next()
-
-        #Assert arrays are equal - this was for peace of mind, but slows down training
-        #np.testing.assert_array_equal(X1i[0],X2i[0])
-        if y:
-            yield [X1i[0], X2i[1]], X1i[1]
-        else:
-            yield [X2i[0], X2i[1]]
-
-
 model_info = params.model_factory(input_shape=X_train.shape[1:])
 model_info.summary()
 
@@ -97,7 +78,7 @@ def train_and_evaluate_model(model, X_tr, y_tr, X_cv, y_cv):
     xcv, mcv = X_cv
 
     hist = model.fit_generator(
-        get_data_generator(xtr, mtr, ytr, batch_size=batch_size),
+        get_data_generator(datagen, xtr, mtr, ytr, batch_size=batch_size),
         steps_per_epoch=np.ceil(float(len(xtr)) / float(batch_size)),
         epochs=epochs,
         verbose=2,
@@ -119,7 +100,7 @@ def predict_with_tta(model):
 
     for i in range(1, tta_steps):
         test_probas = model.predict_generator(
-            get_data_generator(X_test, M_test, batch_size=batch_size),
+            get_data_generator(datagen_test, X_test, M_test, batch_size=batch_size),
             steps=np.ceil(float(len(X_test)) / float(batch_size)),
             verbose=2
         )

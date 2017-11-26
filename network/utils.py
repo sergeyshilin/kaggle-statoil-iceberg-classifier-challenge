@@ -49,3 +49,26 @@ def get_best_history(history, monitor='val_loss', mode='min'):
     val_acc = history['val_acc'][best_iteration]
 
     return best_iteration + 1, loss, acc, val_loss, val_acc
+
+
+# Here is the function that merges our two generators
+# We use the exact same generator with the same random seed for both the y and angle arrays
+def get_data_generator(datagen, X1, X2, y, batch_size):
+    genX1 = datagen.flow(X1, y, batch_size=batch_size, seed=55)
+    genX2 = datagen.flow(X1, X2, batch_size=batch_size, seed=55)
+
+    while True:
+        X1i = genX1.next()
+        X2i = genX2.next()
+
+        #Assert arrays are equal - this was for peace of mind, but slows down training
+        #np.testing.assert_array_equal(X1i[0],X2i[0])
+        yield [X1i[0], X2i[1]], X1i[1]
+
+
+def get_data_generator_test(datagen, X1, X2, batch_size):
+    genX1 = datagen.flow(X1, X2, batch_size=batch_size, seed=55)
+
+    while True:
+        X1i = genX1.next()
+        yield [X1i[0], X1i[1]]
