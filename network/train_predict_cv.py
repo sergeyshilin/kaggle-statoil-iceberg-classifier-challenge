@@ -95,6 +95,7 @@ def train_and_evaluate_model(model, X_tr, y_tr, X_cv, y_cv):
 
 
 def predict_with_tta(model):
+    print ('\nPredicting test data with augmentation ...')
     predictions = np.zeros((tta_steps, len(X_test)))
     test_probas = model.predict([X_test, M_test], batch_size=batch_size, verbose=1)
     predictions[0] = test_probas.reshape(test_probas.shape[0])
@@ -103,7 +104,7 @@ def predict_with_tta(model):
         test_probas = model.predict_generator(
             get_data_generator_test(datagen_test, X_test, M_test, batch_size=batch_size),
             steps=np.ceil(float(len(X_test)) / float(batch_size)),
-            verbose=2
+            verbose=1
         )
         predictions[i] = test_probas.reshape(test_probas.shape[0])
 
