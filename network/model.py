@@ -50,6 +50,9 @@ def get_model_sequential(input_shape=(75, 75, 3)):
     conv3 = Conv2D(256, kernel_size=kernel_size, padding='same')(conv3)
     conv3 = BatchNormalization()(conv3)
     conv3 = Activation('relu')(conv3)
+    conv3 = Conv2D(256, kernel_size=kernel_size, padding='same')(conv3)
+    conv3 = BatchNormalization()(conv3)
+    conv3 = Activation('relu')(conv3)
     conv3 = MaxPooling2D(pool_size=(2, 2), strides=(2, 2))(conv3)
     conv3 = Dropout(dropout)(conv3)
     # size = 9x9
@@ -64,12 +67,18 @@ def get_model_sequential(input_shape=(75, 75, 3)):
     conv4 = Conv2D(512, kernel_size=kernel_size, padding='same')(conv4)
     conv4 = BatchNormalization()(conv4)
     conv4 = Activation('relu')(conv4)
+    conv4 = Conv2D(512, kernel_size=kernel_size, padding='same')(conv4)
+    conv4 = BatchNormalization()(conv4)
+    conv4 = Activation('relu')(conv4)
     conv4 = MaxPooling2D(pool_size=(3, 3), strides=(3, 3))(conv4)
     conv4 = Dropout(dropout)(conv4)
     # size = 3x3
 
     # Conv Layer 5
     conv5 = Conv2D(512, kernel_size=kernel_size, padding='same')(conv4)
+    conv5 = BatchNormalization()(conv5)
+    conv5 = Activation('relu')(conv5)
+    conv5 = Conv2D(512, kernel_size=kernel_size, padding='same')(conv5)
     conv5 = BatchNormalization()(conv5)
     conv5 = Activation('relu')(conv5)
     conv5 = Conv2D(512, kernel_size=kernel_size, padding='same')(conv5)
