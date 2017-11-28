@@ -8,6 +8,7 @@ import pandas as pd
 import params
 from utils import get_data, get_best_history
 from utils import get_data_generator, get_data_generator_test
+from utils import get_object_size
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
@@ -30,8 +31,14 @@ test = pd.read_json('../data/test.json')
 train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
     train[train['inc_angle'] != "na"]['inc_angle'].mean()
 
-X_train, M_train = get_data(train.band_1.values, train.band_2.values, train.inc_angle.values)
-X_test, M_test = get_data(test.band_1.values, test.band_2.values, test.inc_angle.values)
+train['size_1'] = train['band_1'].apply(get_object_size)
+test['size_1'] = test['band_1'].apply(get_object_size)
+
+# Get prepared data based on band_1, band_2 and meta information
+X_train, M_train = get_data(train.band_1.values, train.band_2.values, 
+    train.inc_angle.values, train.size_1.values)
+X_test, M_test = get_data(test.band_1.values, test.band_2.values,
+    test.inc_angle.values, test.size_1.values)
 y_train = train['is_iceberg']
 
 
@@ -67,7 +74,7 @@ datagen_test = ImageDataGenerator(
 )
 
 
-model_info = params.model_factory(input_shape=X_train.shape[1:])
+model_info = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
 model_info.summary()
 
 with open(best_model_path, "w") as json_file:
@@ -125,7 +132,7 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     cv_labels.extend(ycv)
 
     model = None
-    model = params.model_factory(input_shape=X_train.shape[1:])
+    model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
     train_and_evaluate_model(model, [xtr, mtr], ytr, [xcv, mcv], ycv)
     model.load_weights(filepath=best_weights_path)
 

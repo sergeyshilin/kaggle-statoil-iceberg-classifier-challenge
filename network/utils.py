@@ -1,10 +1,9 @@
 import numpy as np
 
 
-def get_data(band_1, band_2, angles):
+def get_data(band_1, band_2, *meta):
     X_band_1 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_1])
     X_band_2 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_2])
-    X_angles = np.asarray(angles).astype(np.float32)
 
     X_band_1_val = np.power(10, X_band_1 / 20.0)
     X_band_2_val = np.power(10, X_band_2 / 20.0)
@@ -20,9 +19,16 @@ def get_data(band_1, band_2, angles):
         axis=-1
     )
 
+    X_meta = np.concatenate(
+        [
+            np.asarray(m).astype(np.float32)[..., np.newaxis] for m in meta
+        ], 
+        axis=1
+    )
+
     # data = color_composite(data)
 
-    return data, X_angles
+    return data, X_meta
 
 
 def color_composite(data):
@@ -72,3 +78,8 @@ def get_data_generator_test(datagen, X1, X2, batch_size):
     while True:
         X1i = genX1.next()
         yield [X1i[0], X1i[1]]
+
+def get_object_size(arr):
+    p = np.reshape(np.array(arr), [75, 75]) > (np.mean(np.array(arr)) + 2 * np.std(np.array(arr)))
+    iso = p * np.reshape(np.array(arr), [75, 75])
+    return np.sum(iso < -5)

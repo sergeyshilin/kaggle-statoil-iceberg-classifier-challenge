@@ -5,7 +5,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam, RMSprop, SGD, Adadelta
 
 
-def get_model_sequential(input_shape=(75, 75, 3)):
+def get_model_sequential(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
     dropout_fc = 0.5
     kernel_size = (3, 3)
@@ -15,8 +15,8 @@ def get_model_sequential(input_shape=(75, 75, 3)):
     input_bands = Input(shape=input_shape, name='bands')
     inputs_bands_norm = BatchNormalization()(input_bands)
 
-    input_angle = Input(shape=[1], name='angle')
-    input_angle_norm = BatchNormalization()(input_angle)
+    input_meta = Input(shape=[inputs_meta], name='meta')
+    input_meta_norm = BatchNormalization()(input_meta)
 
     # Conv Layer 1
     conv1 = Conv2D(64, kernel_size=kernel_size, padding='same')(inputs_bands_norm)
@@ -94,7 +94,7 @@ def get_model_sequential(input_shape=(75, 75, 3)):
     conv5 = GlobalMaxPooling2D()(conv5)
     conv5 = BatchNormalization()(conv5)
 
-    concat = Concatenate()([conv5, input_angle_norm])
+    concat = Concatenate()([conv5, input_meta_norm])
 
     #Dense Layers
     fc1 = Dense(512)(concat)
@@ -110,7 +110,7 @@ def get_model_sequential(input_shape=(75, 75, 3)):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
 
-    model = Model(inputs=[input_bands, input_angle], outputs=output)
+    model = Model(inputs=[input_bands, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
