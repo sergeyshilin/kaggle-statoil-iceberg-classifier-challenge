@@ -83,3 +83,22 @@ def get_object_size(arr):
     p = np.reshape(np.array(arr), [75, 75]) > (np.mean(np.array(arr)) + 2 * np.std(np.array(arr)))
     iso = p * np.reshape(np.array(arr), [75, 75])
     return np.sum(iso < -5)
+
+def get_stats(data):
+    for i in range(2):
+        label = str(i + 1)
+        band_name = 'band_' + label
+        bands = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in data[band_name].values])
+
+        data['max_' + label] = [np.max(x) for x in bands]
+        data['maxpos_' + label] = [np.argmax(x) for x in bands]
+        data['min_' + label] = [np.min(x) for x in bands]
+        data['minpos_' + label] = [np.argmin(x) for x in bands]
+        data['med_' + label] = [np.median(x) for x in bands]
+        data['std_' + label] = [np.std(x) for x in bands]
+        data['mean_' + label] = [np.mean(np.array(x)) for x in bands]
+        data['p25_' + label] = [np.sort(x.reshape(75 * 75))[int(0.25 * 75 * 75)] for x in bands]
+        data['p75_' + label] = [np.sort(x.reshape(75 * 75))[int(0.75 * 75 * 75)] for x in bands]
+        data['mid50_' + label] = data['p75_' + label] - data['p25_' + label]
+
+    return data

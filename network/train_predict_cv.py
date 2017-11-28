@@ -8,7 +8,7 @@ import pandas as pd
 import params
 from utils import get_data, get_best_history
 from utils import get_data_generator, get_data_generator_test
-from utils import get_object_size
+from utils import get_object_size, get_stats
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
@@ -34,11 +34,18 @@ train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
 train['size_1'] = train['band_1'].apply(get_object_size)
 test['size_1'] = test['band_1'].apply(get_object_size)
 
+train = get_stats(train)
+test = get_stats(test)
+
 # Get prepared data based on band_1, band_2 and meta information
 X_train, M_train = get_data(train.band_1.values, train.band_2.values, 
-    train.inc_angle.values, train.size_1.values)
+    train.inc_angle.values, train.size_1.values, train.min_1.values,
+    train.max_1.values, train.med_1.values, train.mean_1.values,
+    train.max_2.values)
 X_test, M_test = get_data(test.band_1.values, test.band_2.values,
-    test.inc_angle.values, test.size_1.values)
+    test.inc_angle.values, test.size_1.values, test.min_1.values,
+    test.max_1.values, test.med_1.values, test.mean_1.values,
+    test.max_2.values)
 y_train = train['is_iceberg']
 
 
