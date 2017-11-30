@@ -62,22 +62,23 @@ def get_callbacks():
 datagen = ImageDataGenerator(
     horizontal_flip=True,
     vertical_flip=True,
-    rotation_range=20,
-    width_shift_range=0.1,
-    height_shift_range=0.1,
-    channel_shift_range=0.1,
-    shear_range=0.1,
-    zoom_range=0.1
+    rotation_range=10,
+    width_shift_range=0.0,
+    height_shift_range=0.0,
+    channel_shift_range=0.0,
+    shear_range=0.0,
+    zoom_range=0.2
 )
 
 datagen_test = ImageDataGenerator(
     horizontal_flip=True,
     vertical_flip=True,
-    width_shift_range=0.1,
-    height_shift_range=0.1,
-    channel_shift_range=0.1,
-    shear_range=0.1,
-    zoom_range=0.1
+    rotation_range=10,
+    width_shift_range=0.0,
+    height_shift_range=0.0,
+    channel_shift_range=0.0,
+    shear_range=0.0,
+    zoom_range=0.0
 )
 
 
