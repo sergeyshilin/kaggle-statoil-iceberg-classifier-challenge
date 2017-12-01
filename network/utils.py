@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 
 def get_data(band_1, band_2, *meta):
@@ -102,3 +103,11 @@ def get_stats(data):
         data['mid50_' + label] = data['p75_' + label] - data['p25_' + label]
 
     return data
+
+def resize_data(data, size):
+    data_upscaled = np.zeros((data.shape[0], *size), dtype=data.dtype)
+
+    for i in range(len(data)):
+        data_upscaled[i] = cv2.resize(data[i], (size[0], size[1]))
+
+    return data_upscaled[:]

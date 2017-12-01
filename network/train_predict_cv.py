@@ -8,7 +8,7 @@ import pandas as pd
 import params
 from utils import get_data, get_best_history
 from utils import get_data_generator, get_data_generator_test
-from utils import get_object_size, get_stats
+from utils import get_object_size, get_stats, resize_data
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
@@ -24,6 +24,7 @@ best_model_path = params.best_model_path
 random_seed = params.seed
 num_folds = params.num_folds
 tta_steps = params.tta_steps
+model_input_size = params.model_input_size
 
 train = pd.read_json('../data/train.json')
 test = pd.read_json('../data/test.json')
@@ -47,6 +48,10 @@ X_test, M_test = get_data(test.band_1.values, test.band_2.values,
     test.max_1.values, test.med_1.values, test.mean_1.values,
     test.max_2.values)
 y_train = train['is_iceberg']
+
+if X_train.shape[1:] != model_input_size:
+    X_train = resize_data(X_train, model_input_size)
+    X_test = resize_data(X_test, model_input_size)
 
 
 def get_callbacks():
