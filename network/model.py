@@ -115,7 +115,6 @@ def get_model_mobilenet(input_shape=(75, 75, 3), inputs_meta=1):
     input_meta = Input(shape=[inputs_meta], name='meta')
     input_meta_norm = BatchNormalization()(input_meta)
 
-    base_model.summary()
     x = base_model.get_layer('conv_pw_13_relu').output
 
     x = GlobalMaxPooling2D()(x)
