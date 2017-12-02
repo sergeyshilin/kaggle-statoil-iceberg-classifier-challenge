@@ -76,7 +76,7 @@ def get_model_vgg19_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
 def get_model_resnet50_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
     kernel_size = (3, 3)
-    optimizer = Adam(lr=0.001, decay=0.002)
+    optimizer = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
     #Building the model
 
     base_model = ResNet50(weights='imagenet', include_top=False, 
