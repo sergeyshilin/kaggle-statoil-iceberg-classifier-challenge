@@ -1,8 +1,7 @@
-from model import get_model_sequential
-from model import get_model_residual
 from model import get_model_vgg16_pretrained
 from model import get_model_vgg19_pretrained
-from model import get_model_resnet_pretrained
+from model import get_model_resnet
+from model import get_model_mobilenet
 
 seed = 13
 max_epochs = 1000
