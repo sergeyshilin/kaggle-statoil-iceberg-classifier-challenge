@@ -73,19 +73,19 @@ def get_model_vgg19_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
 
     return model
 
-def get_model_resnet(input_shape=(75, 75, 3), inputs_meta=1):
+def get_model_resnet50_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
     kernel_size = (3, 3)
     optimizer = Adam(lr=0.001, decay=0.002)
     #Building the model
 
-    base_model = ResNet50(weights=None, include_top=False, 
+    base_model = ResNet50(weights='imagenet', include_top=False, 
                  input_shape=input_shape, classes=1)
 
     input_meta = Input(shape=[inputs_meta], name='meta')
     input_meta_norm = BatchNormalization()(input_meta)
 
-    x = base_model.get_layer('bn5c_branch2c').output
+    x = base_model.get_layer('avg_pool').output
 
     x = GlobalMaxPooling2D()(x)
     concat = concatenate([x, input_meta_norm])
@@ -147,8 +147,7 @@ def get_model_inceptionv3_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     input_meta = Input(shape=[inputs_meta], name='meta')
     input_meta_norm = BatchNormalization()(input_meta)
 
-    base_model.summary()
-    x = base_model.get_layer('activation_94').output
+    x = base_model.get_layer('mixed10').output
 
     x = GlobalMaxPooling2D()(x)
     concat = concatenate([x, input_meta_norm])
