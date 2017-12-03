@@ -10,6 +10,7 @@ from keras.applications.vgg19 import VGG19
 from keras.applications.resnet50 import ResNet50
 from keras.applications.mobilenet import MobileNet
 from keras.applications.inception_v3 import InceptionV3
+from keras.applications.xception import Xception
 
 
 def get_model_vgg16_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
@@ -97,7 +98,7 @@ def get_model_resnet50_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     # Sigmoid Layer
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
-    
+
     model = Model(input=[base_model.input, input_meta], output=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
@@ -128,7 +129,7 @@ def get_model_mobilenet_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     # Sigmoid Layer
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
-    
+
     model = Model(input=[base_model.input, input_meta], output=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
@@ -159,7 +160,38 @@ def get_model_inceptionv3_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     # Sigmoid Layer
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
-    
+
+    model = Model(input=[base_model.input, input_meta], output=output)
+
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+
+    return model
+
+def get_model_xception_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
+    dropout = 0.25
+    kernel_size = (3, 3)
+    optimizer = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
+    #Building the model
+
+    base_model = Xception(weights='imagenet', include_top=False, 
+                 input_shape=input_shape, classes=1)
+
+    input_meta = Input(shape=[inputs_meta], name='meta')
+    input_meta_norm = BatchNormalization()(input_meta)
+
+    x = base_model.get_layer('block14_sepconv2_act').output
+
+    x = GlobalMaxPooling2D()(x)
+    concat = concatenate([x, input_meta_norm])
+    fc1 = Dense(512, activation='relu', name='fc2')(concat)
+    fc1 = Dropout(dropout)(fc1)
+    fc2 = Dense(512, activation='relu', name='fc3')(fc1)
+    fc2 = Dropout(dropout)(fc2)
+
+    # Sigmoid Layer
+    output = Dense(1)(fc2)
+    output = Activation('sigmoid')(output)
+
     model = Model(input=[base_model.input, input_meta], output=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
