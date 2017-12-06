@@ -9,6 +9,7 @@ import pandas as pd
 
 import params
 from utils import get_data, get_best_history
+from utils import preprocess_image
 
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
@@ -18,42 +19,43 @@ batch_size = params.batch_size
 
 train = pd.read_json('../data/train.json')
 test = pd.read_json('../data/test.json')
+
 train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
     train[train['inc_angle'] != "na"]['inc_angle'].mean()
 
 X_train, _ = get_data(train.band_1.values, train.band_2.values, train.inc_angle.values)
-X_test = get_data(test.band_1.values, test.band_2.values, test.inc_angle.values)
+X_test, _ = get_data(test.band_1.values, test.band_2.values, test.inc_angle.values)
+
 
 datagen = ImageDataGenerator(
     horizontal_flip=True,
     vertical_flip=True,
-    rotation_range=40,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    channel_shift_range=0.1,
-    shear_range=0.2,
-    zoom_range=0.1
+    rotation_range=0.0,
+    width_shift_range=0.0,
+    height_shift_range=0.0,
+    channel_shift_range=0.0,
+    shear_range=0.0,
+    zoom_range=0.0,
+    preprocessing_function=preprocess_image
 )
 
 datagen_test = ImageDataGenerator(
-    # horizontal_flip=True,
-    # vertical_flip=True,
+    horizontal_flip=True,
+    vertical_flip=True,
+    rotation_range=0.0,
+    width_shift_range=0.0,
+    height_shift_range=0.0,
+    channel_shift_range=0.0,
+    shear_range=0.0,
+    zoom_range=0.0
 )
 
-ship_image = np.asarray([X_train[0]])
-iceberg_image = np.asarray([X_train[2]])
-
-for i, batch in enumerate(datagen.flow(ship_image, batch_size=batch_size,
-                          save_to_dir='../preview', save_prefix='ship', save_format='jpeg')):
+for i, batch in enumerate(datagen.flow(X_train, batch_size=batch_size,
+                          save_to_dir='../preview', save_format='jpeg')):
     if i > IMAGES_TO_SAVE:
         break
 
-for i, batch in enumerate(datagen.flow(iceberg_image, batch_size=batch_size,
-                          save_to_dir='../preview', save_prefix='iceberg', save_format='jpeg')):
-    if i > IMAGES_TO_SAVE:
-        break
-
-## Save test images to display
+# Save test images to display
 for i, batch in enumerate(datagen_test.flow(X_test, batch_size=batch_size,
                           save_to_dir='../preview_test', save_format='jpeg')):
     if i > IMAGES_TO_SAVE:

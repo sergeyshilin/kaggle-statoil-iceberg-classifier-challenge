@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 
+from keras.preprocessing import image
+
 
 def get_data(band_1, band_2, *meta):
     X_band_1 = np.array([np.array(band).astype(np.float32).reshape(75, 75) for band in band_1])
@@ -111,3 +113,64 @@ def resize_data(data, size):
         data_upscaled[i] = cv2.resize(data[i], (size[0], size[1]))
 
     return data_upscaled[:]
+
+
+## Augmentation methods
+
+
+def random_rotate(img, angle=10, u=0.5):
+    if np.random.random() < u:
+        img = image.random_rotation(img, angle, row_axis=0, col_axis=1, channel_axis=2)
+    return img
+
+def random_shift(img, w_limit=0.1, h_limit=0.1, u=0.5):
+    if np.random.random() < u:
+        img = image.random_shift(img, w_limit, h_limit, row_axis=0, col_axis=1, channel_axis=2)
+    return img
+
+def random_zoom(img, zoom=0.1, u=0.5):
+    if np.random.random() < u:
+        img = image.random_zoom(img, (1 - zoom, 1 + zoom), row_axis=0, col_axis=1, channel_axis=2)
+    return img
+
+def convert_to_gray(img):
+    b, g, r = cv2.split(img)
+    coef = np.array([[[0.114, 0.587, 0.299]]])  # bgr to gray (YCbCr)
+    gray = np.sum(img * coef, axis=2)
+    img = np.dstack((b-2, b-2, r))
+    return img
+
+def generate_test_like_image(img):
+    shift = 20
+    # flip image horizontally and mirror left part on the right part
+    img = img[::-1, :, : ]
+    img = np.roll(img, shift=shift, axis=0)
+    img[:37, :, : ] = img[38:, :, : ]
+
+    # the same vertically
+    img = img[:, ::-1, : ]
+    img = np.roll(img, shift=shift, axis=1)
+    img[:, :37, : ] = img[:, 38:, : ]
+    return img
+
+def half_image_gamma_correction(img):
+    img[38:] = img[38:] + np.random.choice(np.arange(3, 11))
+    return img
+
+def preprocess_image(image):
+    image_aug = image[:]
+    transformation_proba = 0.5
+
+    if np.random.random() < transformation_proba:
+        # Generate an image like we have machine-generated data in a test dataset
+        image_aug = generate_test_like_image(image_aug)
+        image_aug = convert_to_gray(image_aug)
+        image_aug = half_image_gamma_correction(image_aug)
+        image_aug = random_shift(image_aug, w_limit=0.2, h_limit=0.2, u=0.7)
+        image_aug = random_rotate(image_aug, angle=30, u=0.9)
+    else:
+        pass
+        image_aug = random_zoom(image_aug, zoom=0.4, u=0.5)
+        image_aug = random_rotate(image_aug, angle=10, u=0.5)
+
+    return image_aug
