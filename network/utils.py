@@ -107,7 +107,7 @@ def get_stats(data):
     return data
 
 def resize_data(data, size):
-    data_upscaled = np.zeros((data.shape[0], *size), dtype=data.dtype)
+    data_upscaled = np.zeros((data.shape[0], size[0], size[1], size[2]), dtype=data.dtype)
 
     for i in range(len(data)):
         data_upscaled[i] = cv2.resize(data[i], (size[0], size[1]))
