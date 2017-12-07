@@ -172,7 +172,21 @@ print ("train_loss: {:0.6f} - train_acc: {:0.4f} - val_loss: {:0.6f} - val_acc: 
 print ()
 
 
+## ========================= MAKE CV AND LB SUBMITS ========================= ##
+with open('../submit_id', 'r') as submit_id:
+    last_submit_id = int(submit_id.read())
+
+last_submit_id += 1
+
+submission_cv = pd.DataFrame()
+submission_cv['preds'] = cv_preds
+submission_cv['is_iceberg'] = cv_labels
+submission_cv.to_csv('../submits_cv/submission_cv_{0:0>3}.csv'.format(last_submit_id), index=False)
+
 submission = pd.DataFrame()
 submission['id'] = test['id']
 submission['is_iceberg'] = predictions.mean(axis=0)
-submission.to_csv('../submits/submission.csv', index=False)
+submission.to_csv('../submits/submission_{0:0>3}.csv'.format(last_submit_id), index=False)
+
+with open('../submit_id', 'w') as submit_id:
+    submit_id.write(str(last_submit_id))
