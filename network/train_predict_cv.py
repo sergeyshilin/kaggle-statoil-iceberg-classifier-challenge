@@ -137,7 +137,7 @@ def predict_with_tta(model, X_data, M_data, verbose=0):
 predictions = np.zeros((num_folds, len(X_test)))
 tr_labels, tr_preds, cv_labels, cv_preds = [], [], [], []
 
-skf = StratifiedKFold(n_splits=num_folds, random_state=random_seed, shuffle=True)
+skf = StratifiedKFold(n_splits=num_folds, random_state=random_seed, shuffle=False)
 for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     print ('\n===================FOLD=', j + 1)
     xtr, mtr, ytr = X_train[train_index], M_train[train_index], y_train[train_index]
