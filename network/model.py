@@ -38,7 +38,7 @@ def get_model_vgg16_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
     
-    model = Model(input=[base_model.input, input_meta], output=output)
+    model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -68,7 +68,7 @@ def get_model_vgg19_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
     
-    model = Model(input=[base_model.input, input_meta], output=output)
+    model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -99,7 +99,7 @@ def get_model_resnet50_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
 
-    model = Model(input=[base_model.input, input_meta], output=output)
+    model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -130,7 +130,7 @@ def get_model_mobilenet_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
 
-    model = Model(input=[base_model.input, input_meta], output=output)
+    model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -161,7 +161,7 @@ def get_model_inceptionv3_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
 
-    model = Model(input=[base_model.input, input_meta], output=output)
+    model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -192,7 +192,7 @@ def get_model_xception_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     output = Dense(1)(fc2)
     output = Activation('sigmoid')(output)
 
-    model = Model(input=[base_model.input, input_meta], output=output)
+    model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
