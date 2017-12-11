@@ -135,7 +135,9 @@ def predict_with_tta(model, X_data, M_data, verbose=0):
 
 ## ========================= RUN KERAS K-FOLD TRAINING ========================= ##
 predictions = np.zeros((num_folds, len(X_test)))
-tr_labels, tr_preds, cv_labels, cv_preds = [], [], [], []
+cv_labels = np.zeros((len(X_train)), dtype=np.uint8)
+cv_preds = np.zeros((len(X_train)), dtype=np.float32)
+tr_labels, tr_preds = [], []
 
 skf = StratifiedKFold(n_splits=num_folds, random_state=random_seed, shuffle=False)
 for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
@@ -144,7 +146,7 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     xcv, mcv, ycv = X_train[cv_index], M_train[cv_index], y_train[cv_index]
 
     tr_labels.extend(ytr)
-    cv_labels.extend(ycv)
+    cv_labels[cv_index] = ycv
 
     model = None
     model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
@@ -154,7 +156,7 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     # Measure train and validation quality
     print ('\nValidating accuracy on training data ...')
     tr_preds.extend(predict_with_tta(model, xtr, mtr))
-    cv_preds.extend(predict_with_tta(model, xcv, mcv))
+    cv_preds[cv_index] = predict_with_tta(model, xcv, mcv)
 
     print ('\nPredicting test data with augmentation ...')
     fold_predictions = predict_with_tta(model, X_test, M_test, verbose=1)
@@ -163,7 +165,7 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
 tr_loss = log_loss(tr_labels, tr_preds)
 tr_acc = accuracy_score(tr_labels, np.asarray(tr_preds) > 0.5)
 val_loss = log_loss(cv_labels, cv_preds)
-val_acc = accuracy_score(cv_labels, np.asarray(cv_preds) > 0.5)
+val_acc = accuracy_score(cv_labels, cv_preds > 0.5)
 
 print ()
 print ("Overall score: ")
