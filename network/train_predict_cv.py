@@ -18,6 +18,8 @@ from sklearn.metrics import log_loss, accuracy_score
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator
 
+
+### LOAD PARAMETERS
 epochs = params.max_epochs
 batch_size = params.batch_size
 validation_split = params.validation_split
@@ -27,6 +29,18 @@ random_seed = params.seed
 num_folds = params.num_folds
 tta_steps = params.tta_steps
 model_input_size = params.model_input_size
+
+## Augmentation parameters
+aug_horizontal_flip = params.aug_horizontal_flip
+aug_vertical_flip = params.aug_vertical_flip
+aug_rotation = params.aug_rotation
+aug_width_shift = params.aug_width_shift
+aug_height_shift = params.aug_height_shift
+aug_channel_shift = params.aug_channel_shift
+aug_shear = params.aug_shear
+aug_zoom = params.aug_zoom
+### LOAD PARAMETERS
+
 
 train = pd.read_json('../data/train.json')
 test = pd.read_json('../data/test.json')
@@ -67,25 +81,14 @@ def get_callbacks():
 
 
 datagen = ImageDataGenerator(
-    horizontal_flip=True,
-    vertical_flip=True,
-    rotation_range=10,
-    width_shift_range=0.0,
-    height_shift_range=0.0,
-    channel_shift_range=0.0,
-    shear_range=0.0,
-    zoom_range=0.2
-)
-
-datagen_test = ImageDataGenerator(
-    horizontal_flip=True,
-    vertical_flip=True,
-    rotation_range=10,
-    width_shift_range=0.0,
-    height_shift_range=0.0,
-    channel_shift_range=0.0,
-    shear_range=0.0,
-    zoom_range=0.0
+    horizontal_flip=aug_horizontal_flip,
+    vertical_flip=aug_vertical_flip,
+    rotation_range=aug_rotation,
+    width_shift_range=aug_width_shift,
+    height_shift_range=aug_height_shift,
+    channel_shift_range=aug_channel_shift,
+    shear_range=aug_shear,
+    zoom_range=aug_zoom
 )
 
 
@@ -124,7 +127,7 @@ def predict_with_tta(model, X_data, M_data, verbose=0):
 
     for i in range(1, tta_steps):
         test_probas = model.predict_generator(
-            get_data_generator_test(datagen_test, X_data, M_data, batch_size=batch_size),
+            get_data_generator_test(datagen, X_data, M_data, batch_size=batch_size),
             steps=np.ceil(float(len(X_data)) / float(batch_size)),
             verbose=verbose
         )

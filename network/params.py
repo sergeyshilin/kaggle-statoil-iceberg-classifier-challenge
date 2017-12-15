@@ -15,3 +15,13 @@ best_weights_path = 'weights/best_weights.hdf5'
 best_model_path = 'models/best_model.json'
 tta_steps = 10
 num_folds = 8
+
+## Augmentation parameters
+aug_horizontal_flip = True
+aug_vertical_flip = True
+aug_rotation = 10
+aug_width_shift = 0.0
+aug_height_shift = 0.0
+aug_channel_shift = 0.0
+aug_shear = 0.0
+aug_zoom = 0.2
