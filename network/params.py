@@ -4,6 +4,7 @@ from model import get_model_resnet50_pretrained # (197, 197, 3)
 from model import get_model_mobilenet_pretrained # (128, 128, 3)
 from model import get_model_inceptionv3_pretrained # (139, 139, 3)
 from model import get_model_xception_pretrained
+from model import get_model_custom
 
 seed = 13
 max_epochs = 1000
