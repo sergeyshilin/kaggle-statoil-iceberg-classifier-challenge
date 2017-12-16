@@ -121,7 +121,7 @@ def train_and_evaluate_model(model, X_tr, y_tr, X_cv, y_cv):
     print ("Best epoch: {}".format(best_epoch))
     print ("loss: {:0.6f} - acc: {:0.4f} - val_loss: {:0.6f} - val_acc: {:0.4f}".format(loss, acc, val_loss, val_acc))
     print ()
-
+    return val_loss
 
 def predict_with_tta(model, X_data, M_data, verbose=0):
     predictions = np.zeros((tta_steps, len(X_data)))
@@ -154,18 +154,25 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     tr_labels.extend(ytr)
     cv_labels[cv_index] = ycv
 
-    model = None
-    model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
-    train_and_evaluate_model(model, [xtr, mtr], ytr, [xcv, mcv], ycv)
-    model.load_weights(filepath=best_weights_path)
+    models = []
+    best_val_loss = 100000.0
+    best_model = None
+    for lr in params.learning_rates:
+        models.append(params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1]))
+        models[-1].lr.set_value(lr)
+        val_loss = train_and_evaluate_model(models[-1], [xtr, mtr], ytr, [xcv, mcv], ycv)
+        models[-1].load_weights(filepath=best_weights_path)
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            best_model = models[-1]
 
     # Measure train and validation quality
     print ('\nValidating accuracy on training data ...')
-    tr_preds.extend(predict_with_tta(model, xtr, mtr))
-    cv_preds[cv_index] = predict_with_tta(model, xcv, mcv)
+    tr_preds.extend(predict_with_tta(best_model, xtr, mtr))
+    cv_preds[cv_index] = predict_with_tta(best_model, xcv, mcv)
 
     print ('\nPredicting test data with augmentation ...')
-    fold_predictions = predict_with_tta(model, X_test, M_test, verbose=1)
+    fold_predictions = predict_with_tta(best_model, X_test, M_test, verbose=1)
     predictions[j] = fold_predictions
 
 tr_loss = log_loss(tr_labels, tr_preds)

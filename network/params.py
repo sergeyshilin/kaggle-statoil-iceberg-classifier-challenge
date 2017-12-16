@@ -22,6 +22,7 @@ best_weights_path = 'weights/best_weights.hdf5'
 best_model_path = 'models/best_model.json'
 tta_steps = 10
 num_folds = 7
+learning_rates = [0.001 * 3., 0.001, 0.001 / 3.]
 
 ## Augmentation parameters
 aug_horizontal_flip = True
