@@ -29,21 +29,23 @@ def get_data(band_1, band_2, *meta):
         axis=1
     )
 
-    # data = color_composite(data)
+    # data = data_normalization(data)
 
     return data, X_meta
 
+def identical(data):
+    return data
 
-def color_composite(data):
+def data_normalization(data):
     rgb_arrays = np.zeros(data.shape).astype(np.float32)
     for i, data_row in enumerate(data):
         band_1 = data_row[:,:,0]
         band_2 = data_row[:,:,1]
         band_3 = data_row[:,:,2]
 
-        r = (band_1 + abs(band_1.min())) / np.max((band_1 + abs(band_1.min())))
-        g = (band_2 + abs(band_2.min())) / np.max((band_2 + abs(band_2.min())))
-        b = (band_3 + abs(band_3.min())) / np.max((band_3 + abs(band_3.min())))
+        r = (band_1 - band_1.mean()) / (band_1.max() - band_1.min())
+        g = (band_2 - band_2.mean()) / (band_2.max() - band_2.min())
+        b = (band_3 - band_3.mean()) / (band_3.max() - band_3.min())
 
         rgb = np.dstack((r, g, b))
         rgb_arrays[i] = rgb

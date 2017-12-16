@@ -23,6 +23,7 @@ train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
     train[train['inc_angle'] != "na"]['inc_angle'].mean()
 
 X_train, M_train = get_data(train.band_1.values, train.band_2.values, train.inc_angle.values)
+X_train = params.data_adapt(X_train)
 y_train = train['is_iceberg']
 
 xtr, xcv, mtr, mcv, ytr, ycv = train_test_split(X_train, M_train, y_train, test_size=validation_split, random_state=42)

@@ -19,7 +19,7 @@ tta_steps = params.tta_steps
 
 test = pd.read_json('../data/test.json')
 X_test, M_test = get_data(test.band_1.values, test.band_2.values, test.inc_angle.values)
-
+X_test = params.data_adapt(X_test)
 
 def get_data_generator(X, M, batch_size=64):
 
