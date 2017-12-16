@@ -13,11 +13,11 @@ from utils import color_composition
 seed = 13
 max_epochs = 1000
 batch_size = 64
-model_factory = get_model_mobilenet_pretrained
+model_factory = get_model_vgg16_pretrained
 
 data_adapt = data_normalization
 
-model_input_size = (128, 128, 3)
+model_input_size = (75, 75, 3)
 validation_split = 0.15
 best_weights_path = 'weights/best_weights.hdf5'
 best_model_path = 'models/best_model.json'

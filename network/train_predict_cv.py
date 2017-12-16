@@ -17,6 +17,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import log_loss, accuracy_score
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator
+from keras import backend as K
 
 
 ### LOAD PARAMETERS
@@ -160,7 +161,7 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     best_model = None
     for lr in params.learning_rates:
         models.append(params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1]))
-        models[-1].lr.set_value(lr)
+        K.set_value(models[-1].optimizer.lr, lr)
         val_loss = train_and_evaluate_model(models[-1], [xtr, mtr], ytr, [xcv, mcv], ycv)
         models[-1].load_weights(filepath=best_weights_path)
         if val_loss < best_val_loss:
