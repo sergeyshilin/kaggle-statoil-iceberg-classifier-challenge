@@ -29,6 +29,7 @@ random_seed = params.seed
 num_folds = params.num_folds
 tta_steps = params.tta_steps
 model_input_size = params.model_input_size
+transform_data = params.data_adapt
 
 ## Augmentation parameters
 aug_horizontal_flip = params.aug_horizontal_flip
@@ -64,8 +65,8 @@ X_test, M_test = get_data(test.band_1.values, test.band_2.values,
 #    test.max_1.values, test.med_1.values, test.mean_1.values,
 #    test.max_2.values)
 
-X_train = params.data_adapt(X_train)
-X_test = params.data_adapt(X_test)
+X_train = transform_data(X_train)
+X_test = transform_data(X_test)
 y_train = train['is_iceberg']
 
 if X_train.shape[1:] != model_input_size:

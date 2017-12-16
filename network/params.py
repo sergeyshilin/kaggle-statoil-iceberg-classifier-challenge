@@ -8,6 +8,7 @@ from model import get_model_custom
 
 from utils import identical
 from utils import data_normalization
+from utils import color_composition
 
 seed = 13
 max_epochs = 1000
