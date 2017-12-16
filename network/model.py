@@ -109,7 +109,7 @@ def get_model_mobilenet_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     #Building the model
 
     base_model = MobileNet(weights='imagenet', include_top=False, 
-                 input_shape=input_shape, classes=1)
+                 dropout=0.2, input_shape=input_shape, classes=1)
 
     input_meta = Input(shape=[inputs_meta], name='meta')
     input_meta_norm = BatchNormalization()(input_meta)
