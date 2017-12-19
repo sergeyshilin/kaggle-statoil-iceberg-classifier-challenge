@@ -25,6 +25,7 @@ epochs = params.max_epochs
 batch_size = params.batch_size
 validation_split = params.validation_split
 best_weights_path = params.best_weights_path
+best_weights_checkpoint = params.best_weights_checkpoint
 best_model_path = params.best_model_path
 random_seed = params.seed
 num_folds = params.num_folds
@@ -80,7 +81,7 @@ def get_callbacks():
         EarlyStopping(monitor='val_loss', patience=40, verbose=1, min_delta=1e-4, mode='min'),
         ReduceLROnPlateau(monitor='val_loss', patience=20, factor=0.1, 
             verbose=1, epsilon=1e-4, mode='min'),
-        ModelCheckpoint(monitor='val_loss', filepath=best_weights_path, 
+        ModelCheckpoint(monitor='val_loss', filepath=best_weights_checkpoint, 
             save_best_only=True, save_weights_only=True, mode='min')
     ]
 
@@ -156,17 +157,22 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     tr_labels.extend(ytr)
     cv_labels[cv_index] = ycv
 
-    models = []
     best_val_loss = 100000.0
-    best_model = None
+
     for lr in params.learning_rates:
-        models.append(params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1]))
-        K.set_value(models[-1].optimizer.lr, lr)
-        val_loss = train_and_evaluate_model(models[-1], [xtr, mtr], ytr, [xcv, mcv], ycv)
-        models[-1].load_weights(filepath=best_weights_path)
+        model = None
+        model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+        K.set_value(model.optimizer.lr, lr)
+        val_loss = train_and_evaluate_model(model, [xtr, mtr], ytr, [xcv, mcv], ycv)
+
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            best_model = models[-1]
+            model.load_weights(filepath=best_weights_checkpoint)
+            model.save_weights(filepath=best_weights_path)
+
+    # Load the best model over all learning rates
+    best_model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+    best_model.load_weights(filepath=best_weights_path)
 
     # Measure train and validation quality
     print ('\nValidating accuracy on training data ...')
