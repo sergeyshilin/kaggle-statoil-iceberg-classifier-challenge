@@ -23,7 +23,6 @@ from keras import backend as K
 ### LOAD PARAMETERS
 epochs = params.max_epochs
 batch_size = params.batch_size
-validation_split = params.validation_split
 best_weights_path = params.best_weights_path
 best_weights_checkpoint = params.best_weights_checkpoint
 best_model_path = params.best_model_path
@@ -32,6 +31,7 @@ num_folds = params.num_folds
 tta_steps = params.tta_steps
 model_input_size = params.model_input_size
 transform_data = params.data_adapt
+pseudolabeling = params.pseudolabeling
 
 ## Augmentation parameters
 aug_horizontal_flip = params.aug_horizontal_flip
@@ -48,8 +48,9 @@ aug_zoom = params.aug_zoom
 train = pd.read_json('../data/train.json')
 test = pd.read_json('../data/test.json')
 
-train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
-    train[train['inc_angle'] != "na"]['inc_angle'].mean()
+train = train.loc[train['inc_angle'] != "na"]
+#train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
+#    train[train['inc_angle'] != "na"]['inc_angle'].mean()
 
 train['size_1'] = train['band_1'].apply(get_object_size)
 test['size_1'] = test['band_1'].apply(get_object_size)
@@ -57,15 +58,21 @@ test['size_1'] = test['band_1'].apply(get_object_size)
 train = get_stats(train)
 test = get_stats(test)
 
+test_pseudo = test[test['is_iceberg'] != -1]
+print("Pseudo labelled rows added: ",  test_pseudo.shape[0])
+
+if pseudolabeling:
+    train = pd.concat([train, test_pseudo], ignore_index=True)
+
 # Get prepared data based on band_1, band_2 and meta information
 X_train, M_train = get_data(train.band_1.values, train.band_2.values, 
-    train.inc_angle.values, train.size_1.values)#, train.min_1.values,
-#    train.max_1.values, train.med_1.values, train.mean_1.values,
-#    train.max_2.values)
+    train.inc_angle.values, train.size_1.values, train.min_1.values,
+    train.max_1.values, train.med_1.values, train.mean_1.values,
+    train.max_2.values)
 X_test, M_test = get_data(test.band_1.values, test.band_2.values,
-    test.inc_angle.values, test.size_1.values)#, test.min_1.values,
-#    test.max_1.values, test.med_1.values, test.mean_1.values,
-#    test.max_2.values)
+    test.inc_angle.values, test.size_1.values, test.min_1.values,
+    test.max_1.values, test.med_1.values, test.mean_1.values,
+    test.max_2.values)
 
 X_train = transform_data(X_train)
 X_test = transform_data(X_test)
