@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-threshold = 0.03
+threshold = 0.030
 test = pd.read_json('../data/test.json')
 probas = pd.read_csv('../submits/submission_056.csv').is_iceberg.values
 
@@ -11,5 +11,5 @@ is_iceberg[probas > 1.0 - threshold] = 1
 is_iceberg[probas < threshold] = 0
 is_iceberg[is_real] = -1
 
-test['is_iceberg'] = pd.Series(is_iceberg, index = test.index)
-test.to_json('../data/test.json')
+test['is_iceberg'] = pd.Series(is_iceberg, index=test.index)
+test.to_json('../data/test.json', orient='records')
