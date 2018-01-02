@@ -107,7 +107,7 @@ datagen = ImageDataGenerator(
 
 model_info = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
 model_info.summary()
-model_init_weights = model.get_weights()
+model_init_weights = model_info.get_weights()
 
 with open(best_model_path, "w") as json_file:
     json_file.write(model_info.to_json())
