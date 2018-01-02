@@ -107,6 +107,7 @@ datagen = ImageDataGenerator(
 
 model_info = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
 model_info.summary()
+model_init_weights = model.get_weights()
 
 with open(best_model_path, "w") as json_file:
     json_file.write(model_info.to_json())
@@ -169,6 +170,8 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     for lr in params.learning_rates:
         model = None
         model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+        model.set_weights(model_init_weights)
+
         K.set_value(model.optimizer.lr, lr)
         val_loss = train_and_evaluate_model(model, [xtr, mtr], ytr, [xcv, mcv], ycv)
 
