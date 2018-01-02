@@ -32,6 +32,7 @@ tta_steps = params.tta_steps
 model_input_size = params.model_input_size
 transform_data = params.data_adapt
 pseudolabeling = params.pseudolabeling
+init_weights = 'weights/init_weights.hdf5'
 
 ## Augmentation parameters
 aug_horizontal_flip = params.aug_horizontal_flip
@@ -107,7 +108,7 @@ datagen = ImageDataGenerator(
 
 model_info = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
 model_info.summary()
-model_init_weights = model_info.get_weights()
+model.save_weights(filepath=init_weights)
 
 with open(best_model_path, "w") as json_file:
     json_file.write(model_info.to_json())
@@ -168,17 +169,17 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     best_val_loss = 100000.0
 
     for lr in params.learning_rates:
-        model = None
-        model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
-        model.set_weights(model_init_weights)
+        model_lr = None
+        model_lr = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+        K.set_value(model_lr.optimizer.lr, lr)
+        model_lr.load_weights(filepath=init_weights)
 
-        K.set_value(model.optimizer.lr, lr)
-        val_loss = train_and_evaluate_model(model, [xtr, mtr], ytr, [xcv, mcv], ycv)
+        val_loss = train_and_evaluate_model(model_lr, [xtr, mtr], ytr, [xcv, mcv], ycv)
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            model.load_weights(filepath=best_weights_checkpoint)
-            model.save_weights(filepath=best_weights_path)
+            model_lr.load_weights(filepath=best_weights_checkpoint)
+            model_lr.save_weights(filepath=best_weights_path)
 
     # Load the best model over all learning rates
     best_model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
