@@ -175,9 +175,9 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
     for lr in params.learning_rates:
         model_lr = None
         model_lr, opt_lr = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
-        K.set_value(model_lr.optimizer.lr, lr)
         model_lr.load_weights(filepath=init_weights)
         model_lr.compile(optimizer=opt_lr, loss=loss_function, metrics=score_metrics)
+        K.set_value(model_lr.optimizer.lr, lr)
 
         val_loss = train_and_evaluate_model(model_lr, [xtr, mtr], ytr, [xcv, mcv], ycv)
 
