@@ -32,7 +32,10 @@ tta_steps = params.tta_steps
 model_input_size = params.model_input_size
 transform_data = params.data_adapt
 pseudolabeling = params.pseudolabeling
+
 init_weights = 'weights/init_weights.hdf5'
+loss_function = 'binary_crossentropy'
+score_metrics = ['accuracy']
 
 ## Augmentation parameters
 aug_horizontal_flip = params.aug_horizontal_flip
@@ -106,8 +109,9 @@ datagen = ImageDataGenerator(
 )
 
 
-model_info = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+model_info, opt_info = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
 model_info.summary()
+model_info.compile(optimizer=opt_info, loss=loss_function, metrics=score_metrics)
 model_info.save_weights(filepath=init_weights)
 
 with open(best_model_path, "w") as json_file:
@@ -170,20 +174,23 @@ for j, (train_index, cv_index) in enumerate(skf.split(X_train, y_train)):
 
     for lr in params.learning_rates:
         model_lr = None
-        model_lr = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+        model_lr, opt_lr = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
         K.set_value(model_lr.optimizer.lr, lr)
         model_lr.load_weights(filepath=init_weights)
+        model_lr.compile(optimizer=opt_lr, loss=loss_function, metrics=score_metrics)
 
         val_loss = train_and_evaluate_model(model_lr, [xtr, mtr], ytr, [xcv, mcv], ycv)
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             model_lr.load_weights(filepath=best_weights_checkpoint)
+            model_lr.compile(optimizer=opt_lr, loss=loss_function, metrics=score_metrics)
             model_lr.save_weights(filepath=best_weights_path)
 
     # Load the best model over all learning rates
-    best_model = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
+    best_model, opt = params.model_factory(input_shape=X_train.shape[1:], inputs_meta=M_train.shape[1])
     best_model.load_weights(filepath=best_weights_path)
+    best_model.compile(optimizer=opt, loss=loss_function, metrics=score_metrics)
 
     # Measure train and validation quality
     print ('\nValidating accuracy on training data ...')

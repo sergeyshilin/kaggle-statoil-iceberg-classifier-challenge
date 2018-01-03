@@ -39,9 +39,7 @@ def get_model_vgg16_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_vgg16(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
@@ -69,9 +67,7 @@ def get_model_vgg16(input_shape=(75, 75, 3), inputs_meta=1):
 
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_vgg19_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.3
@@ -99,9 +95,7 @@ def get_model_vgg19_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_resnet50_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
@@ -129,9 +123,7 @@ def get_model_resnet50_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
 
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_mobilenet_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
@@ -159,9 +151,7 @@ def get_model_mobilenet_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
 
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_inceptionv3_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
@@ -189,9 +179,7 @@ def get_model_inceptionv3_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
 
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_xception_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
     dropout = 0.25
@@ -219,9 +207,7 @@ def get_model_xception_pretrained(input_shape=(75, 75, 3), inputs_meta=1):
 
     model = Model(inputs=[base_model.input, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
 
 def get_model_custom(input_shape=(75, 75, 3), inputs_meta=1):
     kernel_size = (3, 3)
@@ -285,6 +271,4 @@ def get_model_custom(input_shape=(75, 75, 3), inputs_meta=1):
 
     model = Model(inputs=[input_bands, input_meta], outputs=output)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-    return model
+    return model, optimizer
