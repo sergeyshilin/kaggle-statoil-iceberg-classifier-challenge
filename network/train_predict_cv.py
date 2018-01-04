@@ -52,9 +52,7 @@ aug_zoom = params.aug_zoom
 train = pd.read_json('../data/train.json')
 test = pd.read_json('../data/test.json')
 
-train = train.loc[train['inc_angle'] != "na"]
-#train.loc[train['inc_angle'] == "na", 'inc_angle'] = \
-#    train[train['inc_angle'] != "na"]['inc_angle'].mean()
+train.loc[train['inc_angle'] == "na", 'inc_angle'] = 0
 
 train['size_1'] = train['band_1'].apply(get_object_size)
 test['size_1'] = test['band_1'].apply(get_object_size)
