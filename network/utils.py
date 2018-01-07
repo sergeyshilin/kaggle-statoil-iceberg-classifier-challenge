@@ -35,6 +35,9 @@ def get_data(band_1, band_2, *meta):
 def identical(data):
     return data
 
+def fft(data):
+    return np.fft.fft2(data, axes = (1, 2))    
+
 def color_composition(data):
     rgb_arrays = np.zeros(data.shape).astype(np.float32)
     for i, data_row in enumerate(data):

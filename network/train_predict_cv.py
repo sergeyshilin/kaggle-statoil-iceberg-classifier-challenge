@@ -66,13 +66,13 @@ if pseudolabeling:
 
 # Get prepared data based on band_1, band_2 and meta information
 X_train, M_train = get_data(train.band_1.values, train.band_2.values, 
-    train.inc_angle.values, train.size_1.values, train.min_1.values,
-    train.max_1.values, train.med_1.values, train.mean_1.values,
-    train.max_2.values)
+    train.inc_angle.values, train.size_1.values)#, train.min_1.values,
+#    train.max_1.values, train.med_1.values, train.mean_1.values,
+#    train.max_2.values)
 X_test, M_test = get_data(test.band_1.values, test.band_2.values,
-    test.inc_angle.values, test.size_1.values, test.min_1.values,
-    test.max_1.values, test.med_1.values, test.mean_1.values,
-    test.max_2.values)
+    test.inc_angle.values, test.size_1.values)#, test.min_1.values,
+#    test.max_1.values, test.med_1.values, test.mean_1.values,
+#    test.max_2.values)
 
 X_train = transform_data(X_train)
 X_test = transform_data(X_test)
