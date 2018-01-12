@@ -1,65 +1,34 @@
 import sys
 from itertools import chain
-import xgboost as xgb
 import pandas as pd
 import numpy as np
 from sklearn.metrics import log_loss
+from sklearn.preprocessing import StandardScaler
+
+from models import EnsembleXGBoostClassifier
+from models import EnsembleLightGBMClassifier
+from models import EnsembleNNClassifier
 
 np.random.seed = 42
 
 ### Parameters of ensembles
-num_ensembles = 25
+num_ensembles = 30
 fraq_submits_in_ensemble = 0.5
 fraq_features_in_ensemble = 0.6
 ##! Parameters of ensembles
 
-## Define universal ensemble classifier (interface) and 
-## all other classifiers we might use
-class EnsembleClassifier:
-    def __init__(self, classifier, parameters):
-        self.parameters = parameters
-        self.classifier = classifier(**parameters)
-
-    def fit(self, X, y):
-        return self.classifier.fit(X_train, y_train)
-
-    def predict(self, data):
-        return self.classifier.predict(data)
-
-    def predict_proba(self, data):
-        return self.classifier.predict_proba(data)
-
-    def get_params(self):
-        return self.parameters
 
 
-class EnsembleXGBoostClassifier(EnsembleClassifier):
-    def __init__(self):
-        parameters = {
-            'booster': 'gbtree',
-            'objective': 'binary:logistic',
-            'learning_rate': np.random.uniform(low=0.0045, high=0.005),
-            'max_depth': np.random.randint(low=1, high=3),
-            'n_estimators': np.random.randint(low = 4000, high = 5000), ## equals to num_rounds in xgb
-            'min_child_weight': np.random.randint(low=1, high=3),
-            'gamma': np.random.uniform(0.0, 0.2),
-            'subsample': np.random.uniform(0.8, 1.0),
-            'colsample_bytree': np.random.uniform(0.7, 0.9),
-            'random_state': np.random.randint(low=0, high=30)
-         }
-
-        EnsembleClassifier.__init__(self, xgb.XGBClassifier, parameters)
-
-    def fit(self, X, y):
-        return self.classifier.fit(X, y, eval_metric='logloss', verbose=True)
-
-
-def get_random_model():
+def get_random_model(input_dim):
     models = [
-        EnsembleXGBoostClassifier()
+        EnsembleXGBoostClassifier(),
+        EnsembleLightGBMClassifier(),
+        EnsembleNNClassifier(input_dim)
     ]
 
-    return np.random.choice(models)
+    probas = [0.4, 0.4, 0.2]
+
+    return np.random.choice(models, p=probas)
 
 
 submits = ['0' + str(i) for i in chain(
@@ -96,17 +65,20 @@ for ens_num in range(num_ensembles):
     X_train = pd.concat([*submits_subset_cv, features_subset_cv], axis=1)
     X_test = pd.concat([*submits_subset_lb, features_subset_lb], axis=1)
 
-    ensemble_model = get_random_model()
+    ensemble_model = get_random_model(input_dim=X_train.shape[1])
 
-    ensemble_model.fit(X_train, y_train)
-    result_preds_cv[:, ens_num] = ensemble_model.predict_proba(X_train)[:, 1]
-    result_preds_lb[:, ens_num] = ensemble_model.predict_proba(X_test)[:, 1]
+    scaler = StandardScaler()
+    ensemble_model.fit(scaler.fit_transform(X_train), y_train)
+    result_preds_cv[:, ens_num] = ensemble_model.predict_proba(scaler.transform(X_train))[:, 1]
+    result_preds_lb[:, ens_num] = ensemble_model.predict_proba(scaler.transform(X_test))[:, 1]
 
-    print ('ensemble log_loss: {}'.format(log_loss(y_train, result_preds_cv[:, ens_num])))
-    output_string += 'ensemble log_loss: {}\n'.format(log_loss(y_train, result_preds_cv[:, ens_num]))
-    output_string += 'submits: {}\n'.format([submits[i] for i in submits_subset_idx])
-    output_string += 'features: {}\n'.format(features_subset_cols)
-    output_string += 'XGB params: {}\n\n'.format(ensemble_model.get_params())
+    print ('ensemble log_loss: {}, classifier: {}'.format(log_loss(y_train, result_preds_cv[:, ens_num]), 
+        ensemble_model.get_name()))
+    output_string += 'Ensemble classifier: {}\n'.format(ensemble_model.get_name())
+    output_string += 'Ensemble log_loss: {}\n'.format(log_loss(y_train, result_preds_cv[:, ens_num]))
+    output_string += 'Submits: {}\n'.format([submits[i] for i in submits_subset_idx])
+    output_string += 'Features: {}\n'.format(features_subset_cols)
+    output_string += 'Ensemble params: {}\n\n'.format(ensemble_model.get_params())
 
 
 ## ========================= MAKE CV AND LB SUBMITS ========================= ##
