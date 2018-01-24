@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
-
+from scipy.signal import correlate2d, convolve2d
 from keras.preprocessing import image
+from sklearn.preprocessing import StandardScaler
 
 
 def get_data(band_1, band_2, *meta):
@@ -28,15 +29,30 @@ def get_data(band_1, band_2, *meta):
         ], 
         axis=1
     )
+    scaler = StandardScaler()
 
-    return data, X_meta
+    return data, scaler.fit_transform(X_meta)
 
 
 def identical(data):
     return data
 
 def fft(data):
-    return np.fft.fft2(data, axes = (1, 2))    
+    # fft_data = np.zeros((data.shape[0], data.shape[1], data.shape[2], 3))
+    fft_data = np.zeros((data.shape[0], data.shape[1], data.shape[2], 4))
+    fft_data[..., 0] = np.real(np.fft.fft2(data[..., 0], axes = (1, 2)))
+    fft_data[..., 1] = np.imag(np.fft.fft2(data[..., 0], axes = (1, 2)))
+    # fft_data[..., 2] = np.abs(np.fft.fft2(data[..., 1], axes = (1, 2)))
+    fft_data[..., 2] = np.real(np.fft.fft2(data[..., 1], axes = (1, 2)))
+    fft_data[..., 3] = np.imag(np.fft.fft2(data[..., 1], axes = (1, 2)))
+    return fft_data.reshape(fft_data.shape[0], -1)
+
+def correlation(data):
+    corr_data = np.zeros((data.shape[0], data.shape[1], data.shape[2], 3))
+    corr_data[..., 0] = np.sqrt(data[..., 0] * data[..., 1])
+    corr_data[..., 1] = np.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2)
+    corr_data[..., 2] = np.arctan2(data[..., 0], data[..., 1])
+    return corr_data
 
 def color_composition(data):
     rgb_arrays = np.zeros(data.shape).astype(np.float32)
