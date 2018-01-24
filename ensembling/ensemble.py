@@ -57,7 +57,7 @@ y_train = submits_cv[0][:1604].is_iceberg
 for ens_num in range(num_ensembles):
     fraq_submits_in_ensemble = np.random.uniform(low=submits_in_ensemble_min, high=submits_in_ensemble_max)
     fraq_features_in_ensemble = np.random.uniform(low=features_in_ensemble_min, high=features_in_ensemble_max)
-
+    
     submits_subset_size = int(fraq_submits_in_ensemble * len(submits_cv))
     features_subset_size = int(fraq_features_in_ensemble * len(meta_cv.columns))
     submits_subset_idx = np.random.choice(range(len(submits_cv)), size=submits_subset_size, replace=False)
